@@ -63,17 +63,24 @@ http://www.google.fr/url?source=imglanding&ct=img&q=http://24leurres.com/wp-cont
 
 = code development =
 
-== Arduino IDE 0023 ==
-
-http://code.google.com/p/arduino/downloads/list
-
-http://www.google.fr/url?source=imglanding&ct=img&q=
-
-http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Arduino_IDE_-_v0011_Alpha.png/300px-Arduino_IDE_-_v0011_Alpha.png&sa=X&ei=jSHKTtCyJIPj4QSq7M1b&ved=0CAwQ8wc&usg=AFQjCNHE0WY5sGC6GROIyk4vFwS62aMhRw -- FREE
-
 == Arduino V1 - RC2 ==
 
 http://code.google.com/p/arduino/wiki/Arduino1
+http://www.mercimerenature.com/GoogleCode/Arduino1_RC2.JPG
+http://www.mercimerenature.com/GoogleCode/ArduWind_Start1.JPG
+http://www.mercimerenature.com/GoogleCode/ArduWind_Start2.JPG
+
+
+Project hosted at: http://code.google.com/p/arduwind/ - Repository type: Subversion
+
+Version Control System: TortoiseSVN 1.7.1, Subversion 1.7.1, for Window7 64-bit - http://tortoisesvn.net/downloads.html
+
+http://tortoisesvn.googlecode.com/svn/trunk/www/images/ContextMenuDirControl.png
+
+http://tortoisesvn.net/screenshots.html
+
+http://www.mercimerenature.com/GoogleCode/CodeGoogle_ArduWind.JPG
+
 
 -----
 = Energy Metering =
