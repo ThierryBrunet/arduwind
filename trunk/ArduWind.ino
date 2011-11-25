@@ -130,7 +130,7 @@ byte macaddr[6];  // Buffer used by NanodeUNIO library
 NanodeUNIO unio(NANODE_MAC_DEVICE);
 boolean bMac; // Success or Failure upon function return
 
-#define APIKEY  "NSsE4lPs73pLNNw7a0twOJ5kZpZVrKz0EiAHRINkZME"  // Mercinat Pachube key
+#define APIKEY  "====your private Pachube KEY to put here===="  //
 //#define APIKEY  "xxx"  // MercinatLabs Pachube key for anyone to test this code
                         
 #define REQUEST_RATE 10000 // in milliseconds - Pachube update rate
@@ -192,7 +192,7 @@ void setup()
   for (int i=0; i < 10; i++) { digitalWrite(6,!digitalRead(6)); delay (50);} // blink LED 6 a bit to greet us after reboot
   
   Serial.begin(115200);
-  Serial.println("\n\nArduWind - MercinatLabs (25 Nov 2011)");
+  Serial.println("\n\nArduWind V1 - MercinatLabs (25 Nov 2011)");
   
   GetMac(); // get MAC adress from the Microchip 11AA02E48 located at the back of the Nanode board
   
