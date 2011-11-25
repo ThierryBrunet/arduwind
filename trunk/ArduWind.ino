@@ -94,12 +94,11 @@ Anemometer is attached to digital input D3 via a 12K pull-up resistor
 //  40388 -- Turbine A -- Private feed -- https://pachube.com/feeds/40388
 //  40389 -- Turbine B -- Private feed -- https://pachube.com/feeds/40389
 //  37267 -- newly built Nanode test feed (Mercinat) -- https://pachube.com/feeds/37267
-//  xxxxx -- for anyone to test the ArduWind code)   -- http://xxxx
-//  xxxxx -- for anyone to test the ArduGrid code)   -- http://xxxx
-//  xxxxx -- for anyone to test the ArduSky code)    -- http://xxxx
-//  xxxxx -- for anyone to test the SkyChube code)   -- http://xxxx
-//  xxxxx -- for anyone to test the NanodeKit code)  -- http://xxxx
-
+//  40447 -- for anyone to test the ArduWind code)   -- https://pachube.com/feeds/40447
+//  40448 -- for anyone to test the ArduGrid code)   -- https://pachube.com/feeds/40448
+//  40449 -- for anyone to test the ArduSky code)    -- https://pachube.com/feeds/40449
+//  40450 -- for anyone to test the SkyChube code)   -- https://pachube.com/feeds/40450
+//  40451 -- for anyone to test the NanodeKit code)  -- https://pachube.com/feeds/40451
 
 ========================================================================================================*/
  
@@ -130,14 +129,13 @@ byte macaddr[6];  // Buffer used by NanodeUNIO library
 NanodeUNIO unio(NANODE_MAC_DEVICE);
 boolean bMac; // Success or Failure upon function return
 
-#define APIKEY  "====your private Pachube KEY to put here===="  //
-//#define APIKEY  "xxx"  // MercinatLabs Pachube key for anyone to test this code
+#define APIKEY  "fqJn9Y0oPQu3rJb46l_Le5GYxJQ1SSLo1ByeEG-eccE"  // MercinatLabs FreeRoom Pachube key for anyone to test this code
                         
 #define REQUEST_RATE 10000 // in milliseconds - Pachube update rate
 unsigned long lastupdate;  // timer value when last Pachube update was done
 uint32_t timer;  // a local timer
 
-byte Ethernet::buffer[600];
+byte Ethernet::buffer[550];
 Stash stash;     // For filling/controlling EtherCard send buffer using satndard "print" instructions
 
 int MyNanode = 0;
@@ -209,7 +207,10 @@ void setup()
     case 0xEA: MyNanode = 3;  Serial.print("n3 "); Serial.print("f35020 - "); Serial.println("Skystream"); break;
     case 0xAC: MyNanode = 4;  Serial.print("n4 "); Serial.print("f40385 - "); Serial.println("Grid RMS #1"); break;
     case 0x8E: MyNanode = 5;  Serial.print("n5 "); Serial.print("f40386 - "); Serial.println("Grid RMS #2"); break;
-    default:  Serial.println("unknown Nanode"); return;
+    default:  
+      Serial.println("unknown Nanode");
+      Serial.print("nx "); Serial.print("f40447 - "); Serial.println("ArduWind Free Room"); break; 
+      return;
   }
 
   // Ethernet/Internet setup
@@ -368,6 +369,16 @@ void loop()  // START Pachube section
                         "\r\n"
                         "$H"),
                         PSTR("api.pachube.com"), PSTR("40386"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+        break;
+        
+      default: // ArduGrid Free Room on Pachube -- https://pachube.com/feeds/40447
+        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+                  "Host: $F" "\r\n"
+                  "X-PachubeApiKey: $F" "\r\n"
+                  "Content-Length: $D" "\r\n"
+                  "\r\n"
+                  "$H"),
+                  PSTR("api.pachube.com"), PSTR("40447"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
         break;
     }
     
