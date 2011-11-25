@@ -1,5 +1,6 @@
-/* Nanode + wind speed/direction (Davis anemometer/vane) + datastreaming to Pachube
-===================================================================================
+/* ArduWind = Nanode + wind speed/direction (Davis anemometer/vane) + datastreaming to Pachube
+==============================================================================================
+V1.0
 MercinatLabs / MERCINAT SARL France
 By: Thierry Brunet de Courssou
 http://www.mercinat.com
