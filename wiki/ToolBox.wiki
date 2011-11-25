@@ -29,6 +29,8 @@ http://www.sparkfun.com/products/7914
 
 http://dlnmh9ip6v2uc.cloudfront.net/images/products/07914-002_i_ma.jpg  http://dlnmh9ip6v2uc.cloudfront.net/images/products/07914-001_i_ma.jpg -- US$ 16.95 + shipping
 
+-----
+
 == Davis anemometer (US$ 130) ==
 
 http://www.davisnet.com/weather/products/weather_product.asp?pnum=07911
@@ -51,13 +53,17 @@ http://www.spiderbeam.com/product_info.php?info=p235_M%E2t%20t%E9lescopique%20en
 
 http://www.spiderbeam.com/images/product_images/info_images/235_0.jpg -- € 480 + other accessories + shipping
 
-http://www.spiderbeam.com/images/product_images/info_images/227_0.jpghttp://www.spiderbeam.com/images/product_images/info_images/259_0.jpg http://www.spiderbeam.com/images/product_images/info_images/81_0.jpg
+http://www.spiderbeam.com/images/product_images/info_images/227_0.jpg http://www.spiderbeam.com/images/product_images/info_images/259_0.jpg http://www.spiderbeam.com/images/product_images/info_images/81_0.jpg
+
+-----
 
 == Wind forecast ==
 
 http://www.windguru.cz/int/index.php?sc=48479
 
-http://www.google.fr/url?source=imglanding&ct=img&q=http://24leurres.com/wp-content/uploads/2011/01/windguru.jpg&sa=X&ei=flPKTsOYIIvw8QO8-7Bs&ved=0CAsQ8wc&usg=AFQjCNFyStPrBvq52-iDYPf3YNfMKvgcyQ -- FREE
+http://www.google.fr/url?source=imglanding&ct=img&q=http://24leurres.com/wp-content/uploads/2011/01/windguru.jpg&sa=X&ei=flPKTsOYIIvw8QO8-7Bs&ved=0CAsQ8wc&usg=AFQjCNFyStPrBvq52-iDYPf3YNfMKvgcyQ
+
+--- FREE ---
 
 ----
 
@@ -70,17 +76,23 @@ http://www.mercimerenature.com/GoogleCode/Arduino1_RC2.JPG
 http://www.mercimerenature.com/GoogleCode/ArduWind_Start1.JPG
 http://www.mercimerenature.com/GoogleCode/ArduWind_Start2.JPG
 
+-----
 
-Project hosted at: http://code.google.com/p/arduwind/ - Repository type: Subversion
+== Version Control System ==
 
-Version Control System: TortoiseSVN 1.7.1, Subversion 1.7.1, for Window7 64-bit - http://tortoisesvn.net/downloads.html
+Version Control System: *TortoiseSVN 1.7.1 | Subversion 1.7.1* | for Window7 64-bit - http://tortoisesvn.net/downloads.html
 
 http://tortoisesvn.googlecode.com/svn/trunk/www/images/ContextMenuDirControl.png
 
 http://tortoisesvn.net/screenshots.html
 
-http://www.mercimerenature.com/GoogleCode/CodeGoogle_ArduWind.JPG
+-----
 
+== Project Repository ==
+
+Project hosted at: http://code.google.com/p/arduwind/ - Repository type: *Subversion*
+
+http://www.mercimerenature.com/GoogleCode/CodeGoogle_ArduWind.JPG
 
 -----
 = Energy Metering =
