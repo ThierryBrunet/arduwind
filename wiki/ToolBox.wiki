@@ -13,6 +13,8 @@ http://www.earthshineelectronics.com/arduino-products/111-nanode-kit.html
 
 http://www.earthshineelectronics.com/Images/nanode.jpg -- €25.00 including shipping
 
+MAC address and 2Kbit permanent storage soldered at back http://www.microchip.com/wwwproducts/Devices.aspx?dDocName=en538621
+
 == USB to Serial Adapter (for Arduino/Nanode code download) ==
 
 http://www.seeedstudio.com/depot/uartsbee-v4-p-688.html?cPath=109
@@ -93,6 +95,20 @@ http://tortoisesvn.net/screenshots.html
 Project hosted at: http://code.google.com/p/arduwind/ - Repository type: *Subversion*
 
 http://www.mercimerenature.com/GoogleCode/CodeGoogle_ArduWind.JPG
+
+-----
+
+=== SVN Checkout ===
+
+Once Tortoise is installed under Windows, here is how to activate SVN checkout:
+
+
+
+Then ONLY your UserName and Password will be requested in a popup windows.
+
+Note, the instructions on GoogleCode hereunder are misleading, thus follow the screen-shots above.
+
+https://code.google.com/p/arduwind/source/checkout  -- wrong !!!
 
 -----
 = Energy Metering =
