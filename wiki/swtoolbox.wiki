@@ -51,16 +51,20 @@ http://www.mercimerenature.com/GoogleCode/SVN%20Checkout1.JPG
 http://www.mercimerenature.com/GoogleCode/SVN%20Checkout2.JPG
 
 -----
-*Note:* the instructions at GoogleCode checkout page hereunder are misleading, thus follow the screen-shots above.
+*Note:* the instructions at GoogleCode checkout page hereunder are misleading, thus follow the screen-shots shown.
 
 https://code.google.com/p/arduwind/source/checkout  -- wrong !!! in the URL do not enter the full line, but ONLY the first part (i.e. ignore _arduwind --username YourName@gmail.com_ )
+
+You only need to provide UserName and Password if you are authorized to make source code changes in a SVN Commit. In that case you will be given project access as a Project Owner, a Project Committer or a Project Contributor.
+
+For SVN Update, that is simply for getting the last version of the code, you do not need to enter Username and PassWord.
 -----
 
 http://www.mercimerenature.com/GoogleCode/SVN%20Commit.JPG
 
 -----
 
-Then ONLY your UserName and Password will be requested in a popup windows.
+In the case of SVN Commit, then ONLY your UserName and Password will be requested in a popup windows if you are included in the list of people who can make  changes. By checking the Save Authentication, you will not have to re-enter your credentials forevery commit.
 
 -----
 
