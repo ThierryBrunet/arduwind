@@ -86,6 +86,11 @@ _above smart meter board uses ADE7753_
 
 http://www.analog.com/en/analog-to-digital-converters/energy-measurement/ade7755/products/product.html
 
+Application note - A Low Cost Watt-Hour Energy Meter Based on the AD7755
+
+http://www.analog.com/static/imported-files/application_notes/AN559.pdf
+
+
 http://www.analog.com/static/imported-files/images/functional_block_diagrams/ADE7755_fbS.png -- US$ 1.55 by x1000
 
 == ADE7753 Single Phase Multifunction Energy Metering IC with Serial-Port Interface (US$ 2.05) ==
