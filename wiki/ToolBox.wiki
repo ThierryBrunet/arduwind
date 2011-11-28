@@ -5,6 +5,10 @@
 
 == _and send real-time data to Pachube via Internet/Ethernet/Wifi/ZigBee/GPRS_ ==
 
+-----
+
+= HW =
+
 == Nanode kit (€ 25) ==
 
 http://wiki.london.hackspace.org.uk/view/Project:Nanode/Building_a_Nanode
