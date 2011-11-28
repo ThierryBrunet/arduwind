@@ -106,9 +106,10 @@ Once Tortoise is installed under Windows, here is how to activate SVN checkout:
 
 Then ONLY your UserName and Password will be requested in a popup windows.
 
-Note, the instructions on GoogleCode hereunder are misleading, thus follow the screen-shots above.
+*Note:* the instructions at GoogleCode checkout page hereunder are misleading, thus follow the screen-shots above.
 
-https://code.google.com/p/arduwind/source/checkout  -- wrong !!!
+https://code.google.com/p/arduwind/source/checkout  -- wrong !!! do not enter the full line, but ONLY the first part (i.e. ignore _arduwind --username YourName@gmail.com_ )
+
 
 -----
 = Energy Metering =
