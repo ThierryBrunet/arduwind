@@ -139,7 +139,7 @@ http://www.analog.com/static/imported-files/application_notes/AN-1076.pdf
 
 http://www.analog.com/static/imported-files/application_notes/AN-1127.pdf
 
-== Selection of ENERGY MEASUREMENT from Analog Devices
+== Selection of ENERGY MEASUREMENT from Analog Devices ==
 
 http://www.analog.com/en/analog-to-digital-converters/energy-measurement/products/index.html
 
