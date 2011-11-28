@@ -1,4 +1,4 @@
-#summary Small Wind Test Site Toolbox
+#summary Small Wind Test Site - H/W Toolbox
 #labels Toolbox,nanode,arduino
 
 = Eveything you need to build your own professional or private small wind turbine test site ==
