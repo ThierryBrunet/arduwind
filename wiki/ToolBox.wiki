@@ -86,7 +86,7 @@ _above smart meter board uses ADE7753_
 
 http://www.analog.com/en/analog-to-digital-converters/energy-measurement/ade7755/products/product.html
 
-Application note - A Low Cost Watt-Hour Energy Meter Based on the AD7755
+*Application note - A Low Cost Watt-Hour Energy Meter Based on the AD7755*
 
 http://www.analog.com/static/imported-files/application_notes/AN559.pdf
 
@@ -96,6 +96,14 @@ http://www.analog.com/static/imported-files/images/functional_block_diagrams/ADE
 == ADE7753 Single Phase Multifunction Energy Metering IC with Serial-Port Interface (US$ 2.05) ==
 
 http://www.analog.com/en/analog-to-digital-converters/energy-measurement/ade7753/products/product.html
+
+*ADE7753 Energy Metering IC - Evaluation Board*
+
+http://www.analog.com/static/imported-files/eval_boards/ADE7753_EvalBoard.pdf
+
+*ADE7753 Application note*
+
+http://www.analog.com/static/imported-files/application_notes/57571383197878AN_758_0.pdf
 
 http://www.analog.com/static/imported-files/images/functional_block_diagrams/ADE7753_FBS.png -- US$ 2.05 by x1000
 
@@ -109,6 +117,9 @@ http://www.analog.com/static/imported-files/images/Product_Descriptions/45672763
 
 _this is the one we believe should be impleted everywhere there is a source of distributed energy production to ensure there is no disturbance induced to the grid_
 
+*Calibrating an ADE7878-Based, 3-Phase Energy Meter*
+
+http://www.analog.com/static/imported-files/application_notes/AN-1076.pdf
 === HIGH ACCURACY HARMONIC ANALYSIS FOR ADVANCED POWER QUALITY MONITORING ===
 
 *_>>>> an Arduino/Nonode Shield for this one would be absolutely great! <<<<< _*
