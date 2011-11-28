@@ -117,9 +117,6 @@ http://www.analog.com/static/imported-files/images/Product_Descriptions/45672763
 
 _this is the one we believe should be impleted everywhere there is a source of distributed energy production to ensure there is no disturbance induced to the grid_
 
-*Calibrating an ADE7878-Based, 3-Phase Energy Meter*
-
-http://www.analog.com/static/imported-files/application_notes/AN-1076.pdf
 === HIGH ACCURACY HARMONIC ANALYSIS FOR ADVANCED POWER QUALITY MONITORING ===
 
 *_>>>> an Arduino/Nonode Shield for this one would be absolutely great! <<<<< _*
@@ -128,9 +125,28 @@ http://www.analog.com/en/analog-to-digital-converters/energy-measurement/ade7880
 
 http://www.analog.com/static/imported-files/images/functional_block_diagrams/ADE7880_FBS.png  -- US$ 9.47 by x1000
 
+=== 7878 / 7880 ===
+
+*ADE7878 Evaluation Board*
+
+http://www.analog.com/static/imported-files/eval_boards/EVAL-ADE7878EB.pdf
+
+*Calibrating an ADE7878-Based, 3-Phase Energy Meter*
+
+http://www.analog.com/static/imported-files/application_notes/AN-1076.pdf
+
+*Differences between 7878 and 7880*
+
+http://www.analog.com/static/imported-files/application_notes/AN-1127.pdf
+
 == Selection of ENERGY MEASUREMENT from Analog Devices
 
 http://www.analog.com/en/analog-to-digital-converters/energy-measurement/products/index.html
+
+*Frequently Asked Questions (FAQs) for Analog Devices Energy (ADE) Products*
+
+http://www.analog.com/static/imported-files/application_notes/AN639.pdf
+
 
 == Opto Isolator (€ 0.33 - Conrad Ref. 156422-62 ) ==
 
