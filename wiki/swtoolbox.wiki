@@ -45,13 +45,28 @@ http://www.mercimerenature.com/GoogleCode/CodeGoogle_ArduWind.JPG
 
 Once Tortoise is installed under Windows, here is how to activate SVN checkout:
 
+http://www.mercimerenature.com/GoogleCode/SVN%20Checkout1.JPG
 
+
+http://www.mercimerenature.com/GoogleCode/SVN%20Checkout2.JPG
+
+-----
+*Note:* the instructions at GoogleCode checkout page hereunder are misleading, thus follow the screen-shots above.
+
+https://code.google.com/p/arduwind/source/checkout  -- wrong !!! in the URL do not enter the full line, but ONLY the first part (i.e. ignore _arduwind --username YourName@gmail.com_ )
+-----
+
+http://www.mercimerenature.com/GoogleCode/SVN%20Commit.JPG
+
+-----
 
 Then ONLY your UserName and Password will be requested in a popup windows.
 
-*Note:* the instructions at GoogleCode checkout page hereunder are misleading, thus follow the screen-shots above.
+-----
 
-https://code.google.com/p/arduwind/source/checkout  -- wrong !!! do not enter the full line, but ONLY the first part (i.e. ignore _arduwind --username YourName@gmail.com_ )
+http://www.mercimerenature.com/GoogleCode/SVN%20Authentication.JPG
 
+
+http://www.mercimerenature.com/GoogleCode/SVN%20Commit%20Finished.JPG
 
 -----
