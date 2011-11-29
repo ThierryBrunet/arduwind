@@ -78,6 +78,12 @@ http://www.google.fr/url?source=imglanding&ct=img&q=http://24leurres.com/wp-cont
 
 http://hochgroup.en.alibaba.com/product/424588718-200841852/single_phase_electric_kilowatt_hour_ph_meter.html?tracelog=cgsotherproduct1
 
+Original schematics of the Hoch board and modifications to make for getting high frequency CF and routing of REVP signal through an additionnal opto isolator.
+
+https://code.google.com/p/ardugrid/downloads/detail?name=Energy%20Meter%20Hoch%20ADE7755%20-%20schematics.pdf&can=2&q=
+
+https://code.google.com/p/ardugrid/downloads/detail?name=Hoch%20ADE7755%20Opto%20Couplers.pdf&can=2&q=
+
 http://i00.i.aliimg.com/photo/v0/424588718/single_phase_electric_kilowatt_hour_ph_meter.jpg
 
 _above smart meter board uses ADE7753_
