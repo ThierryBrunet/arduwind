@@ -11,10 +11,6 @@
 
 = SW Code development =
 
-== Arduino V1 - RC2 ==
-
-http://code.google.com/p/arduino/wiki/Arduino1
-
 == Arduino V1 - Release ==
 
 http://files.arduino.cc/downloads/arduino-1.0-windows.zip
