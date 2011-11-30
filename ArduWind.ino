@@ -5,14 +5,14 @@ MercinatLabs / MERCINAT SARL France
 By: Thierry Brunet de Courssou
 http://www.mercinat.com
 Created 28 May 2011
-Last update: 25 Nov 2011
+Last update: 30 Nov 2011
 Project hosted at: http://code.google.com/p/arduwind/ - Repository type: Subversion
 Version Control System: TortoiseSVN 1.7.1, Subversion 1.7.1, for Window7 64-bit - http://tortoisesvn.net/downloads.html
 
 Configuration
 -------------
 Hardware: Nanode v5 + Davis anemometer/vane (or Inspeed Vortex anemometer)
-Arduino IDE RC2 for Windows at http://code.google.com/p/arduino/wiki/Arduino1
+SW Arduino 1.0 IDE for Windows at http://files.arduino.cc/downloads/arduino-1.0-windows.zip
 -- did not test with Arduino IDE 0022 or 0023
 
 Project summary
@@ -190,7 +190,7 @@ void setup()
   for (int i=0; i < 10; i++) { digitalWrite(6,!digitalRead(6)); delay (50);} // blink LED 6 a bit to greet us after reboot
   
   Serial.begin(115200);
-  Serial.println("\n\nArduWind V1 - MercinatLabs (25 Nov 2011)");
+  Serial.println("\n\nArduWind V1 - MercinatLabs (30 Nov 2011)");
   
   GetMac(); // get MAC adress from the Microchip 11AA02E48 located at the back of the Nanode board
   
