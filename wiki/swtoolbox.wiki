@@ -13,7 +13,7 @@
 
 == Arduino V1 - Release ==
 
-http://files.arduino.cc/downloads/arduino-1.0-windows.zip
+http://code.google.com/p/arduino/downloads/list
 
 http://dangerousprototypes.com/wp-content/media/2011/11/arduino_preview2.jpg
 
