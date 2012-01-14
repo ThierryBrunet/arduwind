@@ -1,19 +1,29 @@
 /* ArduWind = Nanode + wind speed/direction (Davis anemometer/vane) + datastreaming to Pachube
 ==============================================================================================
-V1.0
+V1.1
 MercinatLabs / MERCINAT SARL France
 By: Thierry Brunet de Courssou
 http://www.mercinat.com
 Created 28 May 2011
-Last update: 30 Nov 2011
+Last update: 14 Jan 2012
 Project hosted at: http://code.google.com/p/arduwind/ - Repository type: Subversion
-Version Control System: TortoiseSVN 1.7.1, Subversion 1.7.1, for Window7 64-bit - http://tortoisesvn.net/downloads.html
+Version Control System: TortoiseSVN 1.7.3, Subversion 1.7.3, for Window7 64-bit - http://tortoisesvn.net/downloads.html
+
+Changes
+-------
+V1.0 - Original release
+V1.1 - Reduced SRAM usage with showString, added watchdog timer, added SRAM memory check, randomize network start
+       over 2 seconds to avoid all Nanodes to collide on network access
+V1.2 - get NTP atomic time, use ATmega328 1024 bytes EEPROM, use Microchip 11AA02E48 2Kbit serial EEPROM (MAC chip),
+       record number of reboots in EEPROM and feed to Pachube, record number of Watchdog timeouts and feed to Pachube 
+V1.3 - Pulse deglitch, wind averaging, 1mn/1h/24h/30days
 
 Configuration
 -------------
-Hardware: Nanode v5 + Davis anemometer/vane (or Inspeed Vortex anemometer)
-SW Arduino 1.0 IDE for Windows at http://files.arduino.cc/downloads/arduino-1.0-windows.zip
--- did not test with Arduino IDE 0022 or 0023
+Hardware: Nanode v5
+Software:
+- Arduino 1.0 IDE for Windows at http://files.arduino.cc/downloads/arduino-1.0-windows.zip
+- Arduino for Visual Studio at http://www.visualmicro.com/
 
 Project summary
 ---------------
@@ -59,6 +69,9 @@ Anemometer is attached to digital input D3 via a 12K pull-up resistor
 // Will check from time to time if this is solved in future versions of 
 // Arduino IDE and EtherCard library.
 
+//http://jeelabs.org/2011/05/22/atmega-memory-use/
+//http://jeelabs.org/2011/05/23/saving-ram-space/
+
 // As Pachube feeds may hang at times, we reboot regularly. 
 // We will monitor stability then remove reboot when OK.
 
@@ -94,13 +107,68 @@ Anemometer is attached to digital input D3 via a 12K pull-up resistor
 //  40388 -- Turbine A -- Private feed -- https://pachube.com/feeds/40388
 //  40389 -- Turbine B -- Private feed -- https://pachube.com/feeds/40389
 //  37267 -- newly built Nanode test feed (Mercinat) -- https://pachube.com/feeds/37267
-//  40447 -- for anyone to test the ArduWind code)   -- https://pachube.com/feeds/40447
-//  40448 -- for anyone to test the ArduGrid code)   -- https://pachube.com/feeds/40448
-//  40449 -- for anyone to test the ArduSky code)    -- https://pachube.com/feeds/40449
-//  40450 -- for anyone to test the SkyChube code)   -- https://pachube.com/feeds/40450
-//  40451 -- for anyone to test the NanodeKit code)  -- https://pachube.com/feeds/40451
+//  40447 -- Free room for anyone to test the ArduWind code)   -- https://pachube.com/feeds/40447
+//  40448 -- Free room for anyone to test the ArduGrid code)   -- https://pachube.com/feeds/40448
+//  40449 -- Free room for anyone to test the ArduSky code)    -- https://pachube.com/feeds/40449
+//  40450 -- Free room for anyone to test the SkyChube code)   -- https://pachube.com/feeds/40450
+//  40451 -- Free room for anyone to test the NanodeKit code)  -- https://pachube.com/feeds/40451
+
+Future updates planned
+----------------------
+
+-	Use of the 2Kbit permanent storage in the Microchip 11AA02E48 serial EEPROM chip soldered on every Nanode
+-   Use of 1024 bytes EEPROM on the ATmega328
+-   Read time from Read time from Pachube or other NTP time server, and maintain real time clock
+-	Reed contacts deglitch algorithm
+-	1 sec wind speed sampling rate and 10 sec Pachube feed rate (by using JSON format, time stamp, and update a 10 point vector every 10 sec)  )
+-	60 sec wind speed average (normalization) 
+-	60 minutes wind speed average
+-	24 hours wind speed average 
+-	Normalized wind gust over 3 seconds
+-	Interpolate wind speed between anemometers
+-	Extrapolate wind speed over 18 meters (gradient calculation)
+-	Turbulence factor calculation, from the wind direction readings
+-	SMS / Email alerts on given criteria (on Pachube)
+-	Storing state in EEPROM (hourly, daily, monthly average,....)
+-	Etc.
 
 ========================================================================================================*/
+
+/* PROGMEM & pgmspace.h library
+Store data in flash (program) memory instead of SRAM. There's a description of the various types of 
+memory available on an Arduino board. The PROGMEM keyword is a variable modifier, it should be used 
+only with the datatypes defined in pgmspace.h. It tells the compiler "put this information into flash 
+memory", instead of into SRAM, where it would normally go. PROGMEM is part of the pgmspace.h library.
+So you first need to include the library at the top your sketch.
+*/
+#include <avr/pgmspace.h>
+
+/* EEPROM
+Read and write bytes from/to EEPROM. EEPROM size: 1024 bytes on the ATmega328
+An EEPROM write takes 3.3 ms to complete. The EEPROM memory has a specified life of 100,000 write/erase 
+cycles, so you may need to be careful about how often you write to it.
+*/
+#include <inttypes.h>
+#include <avr/eeprom.h>
+class EEPROMClass
+{
+  public:
+    uint8_t read(int);
+    void write(int, uint8_t);
+};
+
+uint8_t EEPROMClass::read(int address)
+{
+	return eeprom_read_byte((unsigned char *) address);
+}
+
+void EEPROMClass::write(int address, uint8_t value)
+{
+	eeprom_write_byte((unsigned char *) address, value);
+}
+EEPROMClass EEPROM;
+
+#include <avr/wdt.h> // Watchdog timer
  
 // ==================================
 // -- Ethernet/Pachube section
@@ -129,13 +197,16 @@ byte macaddr[6];  // Buffer used by NanodeUNIO library
 NanodeUNIO unio(NANODE_MAC_DEVICE);
 boolean bMac; // Success or Failure upon function return
 
+// #define APIKEY  "xxxx"  // Mercinat Pachube key
 #define APIKEY  "fqJn9Y0oPQu3rJb46l_Le5GYxJQ1SSLo1ByeEG-eccE"  // MercinatLabs FreeRoom Pachube key for anyone to test this code
                         
 #define REQUEST_RATE 10000 // in milliseconds - Pachube update rate
-unsigned long lastupdate;  // timer value when last Pachube update was done
-uint32_t timer;  // a local timer
+unsigned long lastupdate = 0;  // timer value when last Pachube update was done
+uint32_t timer = 0;            // a local timer
+unsigned long PachubeResponseTime = 0; // Time between send to and response from Pachube
+unsigned long pingtimer;   // ping timer
 
-byte Ethernet::buffer[550];
+byte Ethernet::buffer[700];
 Stash stash;     // For filling/controlling EtherCard send buffer using satndard "print" instructions
 
 int MyNanode = 0;
@@ -155,14 +226,14 @@ const float WindTo_kph = 3.62102;
 const float WindTo_mph = 2.25;
 const float WindTo_knt = 1.95515;
 float WindSpeed_mps, WindSpeed_kph, WindSpeed_mph, WindSpeed_knt;
-unsigned long PulseTimeLast = 0; // Time stamp of the previous pulse
-unsigned long PulseTimeInterval = 0;; // Time interval since last pulse
+volatile unsigned long PulseTimeLast = 0; // Time stamp of the previous pulse
+volatile unsigned long PulseTimeInterval = 0;; // Time interval since last pulse
 
 float WindSpeed_mpsx;
-unsigned long PulsesCumulatedTime = 0; // Time Interval since last wind speed computation 
-unsigned long PulsesNbr = 0;           // Number of pulses since last wind speed computation 
-unsigned long LastPulseTimeInterval = 1000000000;
-unsigned long MinPulseTimeInterval = 1000000000;
+volatile unsigned long PulsesCumulatedTime = 0; // Time Interval since last wind speed computation 
+volatile unsigned long PulsesNbr = 0;           // Number of pulses since last wind speed computation 
+volatile unsigned long LastPulseTimeInterval = 1000000000;
+volatile unsigned long MinPulseTimeInterval = 1000000000;
 float MaxWind = 0.0; // Max wind speed 
 float WindGust = 0.0;
 
@@ -180,47 +251,72 @@ int FirstLoop = 0;
 int TRUE = 1;
 int FALSE = 0;
 
+unsigned long TimeStampSinceLastReboot;
+
+// Watchdog timer variables
+// ------------------------
+unsigned long previousWdtMillis = 0;
+unsigned long wdtInterval = 0;
+
 
 // **********************
 // -- SETUP
 // **********************
 void setup()
 {
-  pinMode(6, OUTPUT);
-  for (int i=0; i < 10; i++) { digitalWrite(6,!digitalRead(6)); delay (50);} // blink LED 6 a bit to greet us after reboot
+    /* We always need to make sure the WDT is disabled immediately after a 
+     * reset, otherwise it will continue to operate with default values.
+     */
+    wdt_disable();
+
+	Serial.begin(115200);
+	delay( random(0,2000) ); // delay startup to avoid all Nanodes to collide on network access after a general power-up
+	// and during Pachube updates								
+// WatchdogSetup();// setup Watch Dog Timer to 8 sec
+	TimeStampSinceLastReboot = millis();
+	pinMode(6, OUTPUT);
+	for (int i=0; i < 10; i++) { digitalWrite(6,!digitalRead(6)); delay (50);} // blink LED 6 a bit to greet us after reboot
   
-  Serial.begin(115200);
-  Serial.println("\n\nArduWind V1 - MercinatLabs (30 Nov 2011)");
-  
+    showString(PSTR("\n\nArduWind V1.1 - MercinatLabs (14 Jan 2012)\n"));
+	showString(PSTR("[SRAM available   ] = ")); Serial.println(freeRam());
+    showString(PSTR("[Number of Reboots] = ")); Serial.println(EEPROM.read(0));
+    showString(PSTR("[Watchdog Timeouts] = ")); Serial.println(EEPROM.read(1));
+	EEPROM.write(0, EEPROM.read(0)+1 ); // Increment EEPROM for each reboot
+	
   GetMac(); // get MAC adress from the Microchip 11AA02E48 located at the back of the Nanode board
   
   // Identify which sensor is assigned to this board
   // If you have boards with identical MAC last 2 values, you will have to adjust your code accordingly
-  switch ( macaddr[5] )
-  {
-    case 0xFA: MyNanode = 6;  Serial.print("n6 "); Serial.print("f38277 - "); Serial.println("Etel 6 m") ; break; 
-    case 0xC4: MyNanode = 9;  Serial.print("n9 "); Serial.print("f38278 - "); Serial.println("Etel 9 m") ; break;
-    case 0xF4: MyNanode = 8;  Serial.print("n8 "); Serial.print("f38279 - "); Serial.println("Etel 12 m"); break;
-    case 0xAF: MyNanode = 7;  Serial.print("n7 "); Serial.print("f38281 - "); Serial.println("Etel 18 m"); break;
-    case 0xD6: MyNanode = 1;  Serial.print("n1 "); Serial.print("f37667 - "); Serial.println("Aurora")   ; break;
-    case 0xC2: MyNanode = 2;  Serial.print("n2 "); Serial.print("f37668 - "); Serial.println("FemtoGrid"); break;
-    case 0xEA: MyNanode = 3;  Serial.print("n3 "); Serial.print("f35020 - "); Serial.println("Skystream"); break;
-    case 0xAC: MyNanode = 4;  Serial.print("n4 "); Serial.print("f40385 - "); Serial.println("Grid RMS #1"); break;
-    case 0x8E: MyNanode = 5;  Serial.print("n5 "); Serial.print("f40386 - "); Serial.println("Grid RMS #2"); break;
-    default:  
-      Serial.println("unknown Nanode");
-      Serial.print("nx "); Serial.print("f40447 - "); Serial.println("ArduWind Free Room"); break; 
-      return;
-  }
+	switch ( macaddr[5] )
+	{
+	case 0xFA: MyNanode = 6;  showString(PSTR("n6 ")); showString(PSTR("f38277 - ")); showString(PSTR("Etel 6 m\n")) ; break; 
+	case 0xC4: MyNanode = 9;  showString(PSTR("n9 ")); showString(PSTR("f38278 - ")); showString(PSTR("Etel 9 m\n")) ; break;
+	case 0xF4: MyNanode = 8;  showString(PSTR("n8 ")); showString(PSTR("f38279 - ")); showString(PSTR("Etel 12 m\n")); break;
+	case 0xAF: MyNanode = 7;  showString(PSTR("n7 ")); showString(PSTR("f38281 - ")); showString(PSTR("Etel 18 m\n")); break;
+	case 0xD6: MyNanode = 1;  showString(PSTR("n1 ")); showString(PSTR("f37667 - ")); showString(PSTR("Aurora\n"))   ; break;
+	case 0xC2: MyNanode = 2;  showString(PSTR("n2 ")); showString(PSTR("f37668 - ")); showString(PSTR("FemtoGrid\n")); break;
+	case 0xEA: MyNanode = 3;  showString(PSTR("n3 ")); showString(PSTR("f35020 - ")); showString(PSTR("Skystream\n")); break;
+	case 0xAC: MyNanode = 4;  showString(PSTR("n4 ")); showString(PSTR("f40385 - ")); showString(PSTR("Grid RMS #1\n")); break;
+	case 0x8E: MyNanode = 5;  showString(PSTR("n5 ")); showString(PSTR("f40386 - ")); showString(PSTR("Grid RMS #2\n")); break;
+	default:  
+		showString(PSTR("unknown Nanode\n\r"));
+		// assigned to NanodeKit free room - https://pachube.com/feeds/40451
+		showString(PSTR("nx ")); showString(PSTR("f40451 - ")); showString(PSTR("NanoKit Free Room\r\n")); break; 
+	}
 
   // Ethernet/Internet setup
-  while (ether.begin(sizeof Ethernet::buffer, macaddr) == 0) { Serial.println( "Failed to access Ethernet controller"); }
-  while (!ether.dhcpSetup()) { Serial.println("DHCP failed"); }
+  while (ether.begin(sizeof Ethernet::buffer, macaddr) == 0) { showString(PSTR( "Failed to access Ethernet controller\n")); }
+  while (!ether.dhcpSetup()) { showString(PSTR("DHCP failed\n")); }
   ether.printIp("IP:  ", ether.myip);
   ether.printIp("GW:  ", ether.gwip);  
-  ether.printIp("DNS: ", ether.dnsip);  
-  while (!ether.dnsLookup(PSTR("api.pachube.com"))) { Serial.println("DNS failed"); }
+  ether.printIp("DNS: ", ether.dnsip); 
+  while (!ether.dnsLookup(PSTR("api.pachube.com"))) { showString(PSTR("DNS failed\n")); }
   ether.printIp("SRV: ", ether.hisip);  // IP for Pachupe API found by DNS service
+  
+WatchdogSetup();// setup Watch Dog Timer to 8 sec
+wdt_reset();
+
+
   
   // Anemometer Interrupt setup 
   // Davis anemometer is assigned to interrupt 1 on digital pin D3
@@ -233,23 +329,68 @@ void setup()
 // **********************
 void loop()  // START Pachube section
 {  
+	// Reset watch dog timer to prevent timeout
+	wdt_reset();
+
+	// Use this endless loop hereunder when you want to verify the effect of the Watchdog timeout
+	// while(1) { digitalWrite(6,!digitalRead(6)); delay (100); showString(PSTR("+")); }
+  
+  
   int j = 0;
   while ( j < 180 )  // As Pachube feeds may hang at times, reboot regularly. We will monitor stability then remove reboot when OK
   // a value of 180 with an update to Pachube every 10 seconds provoque a reboot every 30 mn. Reboot is very fast.
   {
+  	wdt_reset();
     ether.packetLoop(ether.packetReceive());  // check response from Pachube
+    delay(100);
+	showString(PSTR("."));
       
   if ( ( millis()-lastupdate ) > REQUEST_RATE )
   {
+  
     lastupdate = millis();
     timer = lastupdate;
     j++;
+	
+	
+	    showString(PSTR("\n************************************************************************************************\n"));    
+		showString(PSTR("\nStarting Pachube update loop --- "));
+		showString(PSTR("[memCheck bytes] ")); Serial.print(freeRam());
+		showString(PSTR(" -- [Reboot Time Stamp] "));
+		Serial.println( millis() - TimeStampSinceLastReboot );
+		showString(PSTR("-> Check response from Pachube\n"));
+		
+		// DHCP expiration is a bit brutal, because all other ethernet activity and
+		// incoming packets will be ignored until a new lease has been acquired
+		//    showString(PSTR("-> DHCP? ")); 
+		//    if (ether.dhcpExpired() && !ether.dhcpSetup())
+		//      showString(PSTR("DHCP failed\n"));
+		//   showString(PSTR("is fine\n")); 
+
+
+		// ping server 
+		ether.printIp("-> Pinging: ", ether.hisip);
+		pingtimer = micros();
+		ether.clientIcmpRequest(ether.hisip);
+		if ( ( ether.packetReceive() > 0 ) && ether.packetLoopIcmpCheckReply(ether.hisip) ) 
+		{
+			showString(PSTR("-> ping OK = "));
+			Serial.print((micros() - pingtimer) * 0.001, 3);
+			showString(PSTR(" ms\n"));
+		} 
+		else 
+		{
+			showString(PSTR("-> ping KO = "));
+			Serial.print((micros() - pingtimer) * 0.001, 3);
+			showString(PSTR(" ms\n"));
+		}
     
     // DHCP expiration is a bit brutal, because all other ethernet activity and
     // incoming packets will be ignored until a new lease has been acquired
+    wdt_reset();
     if ( ether.dhcpExpired() && !ether.dhcpSetup() )
     { 
-      Serial.println("DHCP failed");
+      showString(PSTR("DHCP failed\n"));
       delay (200); // delay to let the serial port buffer some time to send the message before rebooting
       software_Reset() ;  // Reboot so can a new lease can be obtained
     }
@@ -273,8 +414,12 @@ void loop()  // START Pachube section
     stash.println( WindSpeed_mph );
     stash.print("5,"); // Datastream 5 - knots
     stash.println( WindSpeed_knt );
-    stash.print("6,"); // Datastream 6 - Nanode Health
+    stash.print("10,"); // Datastream 10 - Nanode Health
     stash.println( j );
+	stash.print("11,");  // Datastream 11 - Nbr of REBOOTs
+	stash.println( EEPROM.read(0) );
+	stash.print("12,");  // Datastream 12 - Nbr of WATCHDOG TIMEOUTs
+	stash.println( EEPROM.read(1)  );
     
     stash.save(); // Close streaming send data buffer
  
@@ -384,7 +529,7 @@ void loop()  // START Pachube section
     
     // send the packet - this also releases all stash buffers once done
     ether.tcpSend();
-    Serial.println("-- sending --"); 
+    showString(PSTR("-- sending --\n")); 
 
             
     for (int i=0; i < 4; i++) { digitalWrite(6,!digitalRead(6)); delay (50);} // blink LED 6 a bit to show some activity on the board when sending to Pachube
@@ -392,7 +537,7 @@ void loop()  // START Pachube section
   }
   
   // reboot now to clean all dirty buffers to avoid Pachube feed hanging.
-  Serial.println("-- rebooting --"); delay (250); 
+  showString(PSTR("-- rebooting --\n")); delay (250); 
   software_Reset() ;
  
 // END -- Ethernet/Pachube section 
@@ -414,36 +559,36 @@ void AnemometerLoop ()    // START Anemometer section
   WindSpeed_knt = (1000000*WindTo_knt/PulsesCumulatedTime)*PulsesNbr;
   MaxWind       = 1000000*WindTo_mps/MinPulseTimeInterval; // Determine wind gust (i.e the smallest pulse interval between Pachube updates)
 
-  Serial.println("");  
-  Serial.println("");  
-  Serial.print("Wind speed -- ");
-//  Serial.println("");  
-//  Serial.print("------------ ");
-//  Serial.println("");  
+  showString(PSTR("\n"));  
+  showString(PSTR("\n"));  
+  showString(PSTR("Wind speed -- "));
+//  showString(PSTR("\n"));  
+//  showString(PSTR("------------ "));
+//  showString(PSTR("\n"));  
   Serial.print(WindSpeed_mpsx,DEC);
-  Serial.print(" m/s      ");
+  showString(PSTR(" m/s      "));
   Serial.print(WindSpeed_kph,DEC);
-  Serial.print(" km/h      ");
+  showString(PSTR(" km/h      "));
   Serial.print(WindSpeed_mph,DEC);
-  Serial.print(" miles/h      ");
-  Serial.print(""); 
+  showString(PSTR(" miles/h      "));
+  showString(PSTR("")); 
   Serial.print(WindSpeed_knt,DEC);
-  Serial.print(" knots");
-  Serial.println("");
+  showString(PSTR(" knots"));
+  showString(PSTR("\n"));
     
-  Serial.print("    ");  
+  showString(PSTR("    "));  
   Serial.print(WindSpeed_mps,DEC);
-  Serial.print(" m/s      ");
+  showString(PSTR(" m/s      "));
   Serial.print(PulsesNbr,DEC);
-  Serial.print(" pulses   ");  
+  showString(PSTR(" pulses   "));  
   Serial.print(PulsesCumulatedTime,DEC);
-  Serial.print(" time in microseconds between pachube updates   "); 
-  Serial.println("");
+  showString(PSTR(" time in microseconds between pachube updates   ")); 
+  showString(PSTR("\n"));
   
-  Serial.print("    ");  
+  showString(PSTR("    "));  
   Serial.print(MaxWind,DEC);
-  Serial.print(" max wind speed m/s   "); 
-  Serial.println("");
+  showString(PSTR(" max wind speed m/s   ")); 
+  showString(PSTR("\n"));
  
   PulsesCumulatedTime = 0;
   PulsesNbr = 0;
@@ -456,16 +601,16 @@ void AnemometerLoop ()    // START Anemometer section
   WindDirection = (DirectionVolt / 1024.0) * 360.0;
   WindDirection = WindDirection + VaneOffset ;  // add direction offset to calibrade vane position
   if (WindDirection > 360 ) { WindDirection = WindDirection - 360; }
-  Serial.print("    ");  
-  Serial.print("Wind Direction -- ");
+  showString(PSTR("    "));  
+  showString(PSTR("Wind Direction -- "));
   Serial.print(WindDirection);
-  Serial.print(" Deg.");
-  Serial.println("");
+  showString(PSTR(" Deg."));
+  showString(PSTR("\n"));
   
   if (FirstLoop <= 2)
   {
     FirstLoop = FirstLoop + 1;
-    Serial.println("> First 2 loops, discard dirty data <");
+    showString(PSTR("> First 2 loops, discard dirty data <\n"));
   }
 }
 
@@ -488,26 +633,111 @@ void AnemometerPulse()
    interrupts();              // Re-enable Interrupts
 }
 
- void GetMac()
-  {
-    Serial.print("Reading MAC address... ");
-    bMac=unio.read( macaddr, NANODE_MAC_ADDRESS, 6 );
-    if ( bMac ) Serial.println("success");
-    else Serial.println("failure");
-    
-    Serial.print("MAC: ");
-    for ( int i=0; i < 6; i++ ) 
-    {
-      if ( macaddr[i] < 16 ) Serial.print("0");
-      Serial.print( macaddr[i], HEX);
-      if ( i < 5 ) Serial.print(":"); else Serial.print("");
-    }
-    Serial.println("");
-  }
+// ++++++++++++++++
+//    FUNCTIONS
+// ++++++++++++++++
+
+// Determines how much RAM is currently unused
+int freeRam () {
+	extern int __heap_start, *__brkval; 
+	int v; 
+	return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+}
+
+// Display string stored in PROGMEM
+void showString (PGM_P s)
+{
+	char c;
+	while ((c = pgm_read_byte(s++)) != 0)
+	Serial.print(c);
+}
+
+void GetMac()
+{
+	showString(PSTR("Reading MAC address... "));
+	bMac=unio.read(macaddr,NANODE_MAC_ADDRESS,6);
+	if (bMac) showString(PSTR("success\n\r"));
+	else showString(PSTR("failure\n\r"));
+	
+	showString(PSTR("MAC     : "));
+	for (int i=0; i<6; i++) 
+	{
+		if (macaddr[i]<16) 
+		{
+			showString(PSTR("0"));
+		}
+		Serial.print(macaddr[i], HEX);
+		if (i<5) 
+		{
+			showString(PSTR(":"));
+		} 
+		else 
+		{
+			showString(PSTR(""));
+		}
+	}
+	showString(PSTR("\n--\n"));
+}
 
 void software_Reset() // Restarts program from beginning but does not reset the peripherals and registers
-  {
-     asm volatile ("  jmp 0");  
-  } 
-  
+{
+	asm volatile ("  jmp 0");  
+} 
+
+//initialize watchdog
+void WatchdogSetup(void)
+{
+#define WDPS_16MS   (0<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(0<<WDP0) 
+#define WDPS_32MS   (0<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(1<<WDP0) 
+#define WDPS_64MS   (0<<WDP3 )|(0<<WDP2 )|(1<<WDP1)|(0<<WDP0) 
+#define WDPS_125MS  (0<<WDP3 )|(0<<WDP2 )|(1<<WDP1)|(1<<WDP0) 
+#define WDPS_250MS  (0<<WDP3 )|(1<<WDP2 )|(0<<WDP1)|(0<<WDP0) 
+#define WDPS_500MS  (0<<WDP3 )|(1<<WDP2 )|(0<<WDP1)|(1<<WDP0) 
+#define WDPS_1S     (0<<WDP3 )|(1<<WDP2 )|(1<<WDP1)|(0<<WDP0) 
+#define WDPS_2S     (0<<WDP3 )|(1<<WDP2 )|(1<<WDP1)|(1<<WDP0) 
+#define WDPS_4S     (1<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(0<<WDP0) 
+#define WDPS_8S     (1<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(1<<WDP0) 
+
+	//disable interrupts
+	cli();
+	//reset watchdog
+	wdt_reset();
+	
+	/* Setup Watchdog by writing to WDTCSR = WatchDog Timer Control Register */ 
+	WDTCSR = (1<<WDCE)|(1<<WDE); // Set Change Enable bit and Enable Watchdog System Reset Mode. 
+	
+	// Set Watchdog prescalar as desired
+	WDTCSR = (1<<WDIE)|(1<<WDIF)|(1<<WDE )| WDPS_8S; 
+
+	
+	//Enable global interrupts
+	sei();
+	
+	showString(PSTR(">>> Watchdog has been initialized\n"));
+}
+
+void WatchdogClear(void)
+{
+	//disable interrupts
+	cli();
+	//reset watchdog
+	wdt_reset();
+	
+	/* Setup Watchdog by writing to WDTCSR = WatchDog Timer Control Register */ 
+	WDTCSR = (1<<WDCE)|(1<<WDE); // Set Change Enable bit and Enable Watchdog System Reset Mode. 	
+}
+
+//Watchdog timeout ISR
+ISR(WDT_vect)
+{
+	WatchdogSetup(); // If not there, cannot print the message before rebooting
+    EEPROM.write(1, EEPROM.read(1)+1 );  // Increment EEPROM for each WatchDog Timeout
+	showString(PSTR("\nREBOOTING....\n\n"));
+	
+	// Time out counter in CPU EEPROM
+	// to be implemened soonest
+	
+	delay(1000); // leave some time for printing on serial port to complete
+	software_Reset();	
+}
 
