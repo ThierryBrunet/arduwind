@@ -85,6 +85,10 @@ http://visualstudiogallery.msdn.microsoft.com/aff7d8be-02a2-4afb-b5c9-3c32e89825
 
 -----
 
+http://www.visualmicro.com/pics/Arduino%20Visual%20Studio%20Mini%20Intellisense.png
+
 http://www.visualmicro.com/pics/Arduino%20Visual%20Studio%20Boards%20Menu%2050.png
+
+http://visualstudiogallery.msdn.microsoft.com/aff7d8be-02a2-4afb-b5c9-3c32e89825e5/image/file/59188/1/Arduino%20for%20Visual%20Studio%20Demo.PNG
 
 -----
