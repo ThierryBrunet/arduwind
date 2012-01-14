@@ -76,3 +76,15 @@ http://www.mercimerenature.com/GoogleCode/SVN%20Authentication.JPG
 http://www.mercimerenature.com/GoogleCode/SVN%20Commit%20Finished.JPG
 
 -----
+
+_Alternatively, you may use Visual Studio_
+
+== Arduino for Visual Studio 2008 and 2010 ==
+
+http://visualstudiogallery.msdn.microsoft.com/aff7d8be-02a2-4afb-b5c9-3c32e89825e5
+
+-----
+
+http://www.visualmicro.com/pics/Arduino%20Visual%20Studio%20Boards%20Menu%2050.png
+
+-----
