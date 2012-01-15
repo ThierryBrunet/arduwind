@@ -13,10 +13,10 @@ Changes
 -------
 V1.0 - Original release
 V1.1 - Reduced SRAM usage with showString, added watchdog timer, added SRAM memory check, randomize network start
-       over 2 seconds to avoid all Nanodes to collide on network access
-V1.2 - get NTP atomic time, use ATmega328 1024 bytes EEPROM, use Microchip 11AA02E48 2Kbit serial EEPROM (MAC chip),
-       record number of reboots in EEPROM and feed to Pachube, record number of Watchdog timeouts and feed to Pachube 
-V1.3 - Pulse deglitch, wind averaging, 1mn/1h/24h/30days
+	   over 2 seconds to avoid all Nanodes to collide on network access
+	   record number of reboots in EEPROM and feed to Pachube, record number of Watchdog timeouts and feed to Pachube 
+V1.2 (soon)- get NTP atomic time, use ATmega328 1024 bytes EEPROM, use Microchip 11AA02E48 2Kbit serial EEPROM (MAC chip),
+V1.3 (soon)- Pulse deglitch, wind averaging, 1mn/1h/24h/30days
 
 Configuration
 -------------
@@ -46,22 +46,22 @@ http://www.davisnet.com/weather/products/weather_product.asp?pnum=07911
 if using Inspeed Vortex anemometer, a closure every 1 second equates to 2.5 mph of wind measured
 (or 1.1176 m/s or 4.02336 km/h).
 http://www.inspeed.com/anemometers/Hand_Held_Wind_Meter.asp
- 
+
 Davis standard cable connection:
 --------------------------------
-  BLACK  --> Wind Speed --> goes to digital input D3 (12k pull up resistor)
-  RED    --> OV
-  GREEN  --> Direction  --> goes to analog input A0
-  YELLOW --> 3.3V
-  
+BLACK  --> Wind Speed --> goes to digital input D3 (12k pull up resistor)
+RED    --> OV
+GREEN  --> Direction  --> goes to analog input A0
+YELLOW --> 3.3V
+
 also consult http://code.google.com/p/arduwind/downloads/list for details on anemometer wiring.
 
 Anemometer is attached to digital input D3 via a 12K pull-up resistor
 - interrupt 1 is for digital pin D3 --> Anemo  http://www.arduino.cc/en/Reference/AttachInterrupt
-   -- Note: Interrupt 0 on digital pin D2 is used in Nanode for Ethernet timers. 
-   -- Interrup 0 on D2 cannot be used for other purposes (we tried connecting a second anemometer 
-   -- to it but we could not get it to work properly)
- 
+-- Note: Interrupt 0 on digital pin D2 is used in Nanode for Ethernet timers. 
+-- Interrup 0 on D2 cannot be used for other purposes (we tried connecting a second anemometer 
+-- to it but we could not get it to work properly)
+
 - Vane is connected to analog input A0
 
 // RAM space is very limited so use PROGMEM to conserve memory with strings
@@ -152,9 +152,9 @@ cycles, so you may need to be careful about how often you write to it.
 #include <avr/eeprom.h>
 class EEPROMClass
 {
-  public:
-    uint8_t read(int);
-    void write(int, uint8_t);
+public:
+	uint8_t read(int);
+	void write(int, uint8_t);
 };
 
 uint8_t EEPROMClass::read(int address)
@@ -169,37 +169,36 @@ void EEPROMClass::write(int address, uint8_t value)
 EEPROMClass EEPROM;
 
 #include <avr/wdt.h> // Watchdog timer
- 
+
 // ==================================
 // -- Ethernet/Pachube section
 // ==================================
 
 #include <EtherCard.h>  // get latest version from https://github.com/jcw/ethercard
-  // EtherShield uses the enc28j60 IC (not the WIZnet W5100 which requires a different library)
-  
+// EtherShield uses the enc28j60 IC (not the WIZnet W5100 which requires a different library)
+
 #include <NanodeUNIO.h>   // get latest version from https://github.com/sde1000/NanodeUNIO 
-  // All Nanodes have a Microchip 11AA02E48 serial EEPROM chip
-  // soldered to the underneath of the board (it's the three-pin
-  // surface-mount device).  This chip contains a unique ethernet address
-  // ("MAC address") for the Nanode.
-  // To read the MAC address the library NanodeUNIO is needed
-  
+// All Nanodes have a Microchip 11AA02E48 serial EEPROM chip
+// soldered to the underneath of the board (it's the three-pin
+// surface-mount device).  This chip contains a unique ethernet address
+// ("MAC address") for the Nanode.
+// To read the MAC address the library NanodeUNIO is needed
+
 // If the above library has not yet been updated for Arduino1 (Rev01, not the beta 0022), 
 // in the 2 files NanodeUNIO.h and NanoUNIO.cpp
 // you will have to make the following modification:
-    //#if ARDUINO >= 100
-    //  #include <Arduino.h> // Arduino 1.0
-    //#else
-    //  #include <WProgram.h> // Arduino 0022+
-    //#endif
+//#if ARDUINO >= 100
+//  #include <Arduino.h> // Arduino 1.0
+//#else
+//  #include <WProgram.h> // Arduino 0022+
+//#endif
 
 byte macaddr[6];  // Buffer used by NanodeUNIO library
 NanodeUNIO unio(NANODE_MAC_DEVICE);
 boolean bMac; // Success or Failure upon function return
 
-// #define APIKEY  "xxxx"  // Mercinat Pachube key
 #define APIKEY  "fqJn9Y0oPQu3rJb46l_Le5GYxJQ1SSLo1ByeEG-eccE"  // MercinatLabs FreeRoom Pachube key for anyone to test this code
-                        
+
 #define REQUEST_RATE 10000 // in milliseconds - Pachube update rate
 unsigned long lastupdate = 0;  // timer value when last Pachube update was done
 uint32_t timer = 0;            // a local timer
@@ -264,29 +263,29 @@ unsigned long wdtInterval = 0;
 // **********************
 void setup()
 {
-    /* We always need to make sure the WDT is disabled immediately after a 
-     * reset, otherwise it will continue to operate with default values.
-     */
-    wdt_disable();
+	/* We always need to make sure the WDT is disabled immediately after a 
+	* reset, otherwise it will continue to operate with default values.
+	*/
+	wdt_disable();
 
 	Serial.begin(115200);
 	delay( random(0,2000) ); // delay startup to avoid all Nanodes to collide on network access after a general power-up
 	// and during Pachube updates								
-// WatchdogSetup();// setup Watch Dog Timer to 8 sec
+	// WatchdogSetup();// setup Watch Dog Timer to 8 sec
 	TimeStampSinceLastReboot = millis();
 	pinMode(6, OUTPUT);
 	for (int i=0; i < 10; i++) { digitalWrite(6,!digitalRead(6)); delay (50);} // blink LED 6 a bit to greet us after reboot
-  
-    showString(PSTR("\n\nArduWind V1.1 - MercinatLabs (14 Jan 2012)\n"));
+
+	showString(PSTR("\n\nArduWind V1.1 - MercinatLabs (14 Jan 2012)\n"));
 	showString(PSTR("[SRAM available   ] = ")); Serial.println(freeRam());
-    showString(PSTR("[Number of Reboots] = ")); Serial.println(EEPROM.read(0));
-    showString(PSTR("[Watchdog Timeouts] = ")); Serial.println(EEPROM.read(1));
+	showString(PSTR("[Number of Reboots] = ")); Serial.println(EEPROM.read(0));
+	showString(PSTR("[Watchdog Timeouts] = ")); Serial.println(EEPROM.read(1));
 	EEPROM.write(0, EEPROM.read(0)+1 ); // Increment EEPROM for each reboot
 	
-  GetMac(); // get MAC adress from the Microchip 11AA02E48 located at the back of the Nanode board
-  
-  // Identify which sensor is assigned to this board
-  // If you have boards with identical MAC last 2 values, you will have to adjust your code accordingly
+	GetMac(); // get MAC adress from the Microchip 11AA02E48 located at the back of the Nanode board
+
+	// Identify which sensor is assigned to this board
+	// If you have boards with identical MAC last 2 values, you will have to adjust your code accordingly
 	switch ( macaddr[5] )
 	{
 	case 0xFA: MyNanode = 6;  showString(PSTR("n6 ")); showString(PSTR("f38277 - ")); showString(PSTR("Etel 6 m\n")) ; break; 
@@ -304,24 +303,24 @@ void setup()
 		showString(PSTR("nx ")); showString(PSTR("f40451 - ")); showString(PSTR("NanoKit Free Room\r\n")); break; 
 	}
 
-  // Ethernet/Internet setup
-  while (ether.begin(sizeof Ethernet::buffer, macaddr) == 0) { showString(PSTR( "Failed to access Ethernet controller\n")); }
-  while (!ether.dhcpSetup()) { showString(PSTR("DHCP failed\n")); }
-  ether.printIp("IP:  ", ether.myip);
-  ether.printIp("GW:  ", ether.gwip);  
-  ether.printIp("DNS: ", ether.dnsip); 
-  while (!ether.dnsLookup(PSTR("api.pachube.com"))) { showString(PSTR("DNS failed\n")); }
-  ether.printIp("SRV: ", ether.hisip);  // IP for Pachupe API found by DNS service
-  
-WatchdogSetup();// setup Watch Dog Timer to 8 sec
-wdt_reset();
+	// Ethernet/Internet setup
+	while (ether.begin(sizeof Ethernet::buffer, macaddr) == 0) { showString(PSTR( "Failed to access Ethernet controller\n")); }
+	while (!ether.dhcpSetup()) { showString(PSTR("DHCP failed\n")); }
+	ether.printIp("IP:  ", ether.myip);
+	ether.printIp("GW:  ", ether.gwip);  
+	ether.printIp("DNS: ", ether.dnsip); 
+	while (!ether.dnsLookup(PSTR("api.pachube.com"))) { showString(PSTR("DNS failed\n")); }
+	ether.printIp("SRV: ", ether.hisip);  // IP for Pachupe API found by DNS service
+
+	WatchdogSetup();// setup Watch Dog Timer to 8 sec
+	wdt_reset();
 
 
-  
-  // Anemometer Interrupt setup 
-  // Davis anemometer is assigned to interrupt 1 on digital pin D3
-  attachInterrupt(1, AnemometerPulse, FALLING);
-  PulseTimeLast = micros();
+
+	// Anemometer Interrupt setup 
+	// Davis anemometer is assigned to interrupt 1 on digital pin D3
+	attachInterrupt(1, AnemometerPulse, FALLING);
+	PulseTimeLast = micros();
 }
 
 // **********************
@@ -334,213 +333,213 @@ void loop()  // START Pachube section
 
 	// Use this endless loop hereunder when you want to verify the effect of the Watchdog timeout
 	// while(1) { digitalWrite(6,!digitalRead(6)); delay (100); showString(PSTR("+")); }
-  
-  
-  int j = 0;
-  while ( j < 180 )  // As Pachube feeds may hang at times, reboot regularly. We will monitor stability then remove reboot when OK
-  // a value of 180 with an update to Pachube every 10 seconds provoque a reboot every 30 mn. Reboot is very fast.
-  {
-  	wdt_reset();
-    ether.packetLoop(ether.packetReceive());  // check response from Pachube
-    delay(100);
-	showString(PSTR("."));
-      
-  if ( ( millis()-lastupdate ) > REQUEST_RATE )
-  {
-  
-    lastupdate = millis();
-    timer = lastupdate;
-    j++;
-	
-	
-	    showString(PSTR("\n************************************************************************************************\n"));    
-		showString(PSTR("\nStarting Pachube update loop --- "));
-		showString(PSTR("[memCheck bytes] ")); Serial.print(freeRam());
-		showString(PSTR(" -- [Reboot Time Stamp] "));
-		Serial.println( millis() - TimeStampSinceLastReboot );
-		showString(PSTR("-> Check response from Pachube\n"));
+
+
+	int j = 0;
+	while ( j < 180 )  // As Pachube feeds may hang at times, reboot regularly. We will monitor stability then remove reboot when OK
+	// a value of 180 with an update to Pachube every 10 seconds provoque a reboot every 30 mn. Reboot is very fast.
+	{
+		wdt_reset();
+		ether.packetLoop(ether.packetReceive());  // check response from Pachube
+		delay(100);
+		showString(PSTR("."));
 		
-		// DHCP expiration is a bit brutal, because all other ethernet activity and
-		// incoming packets will be ignored until a new lease has been acquired
-		//    showString(PSTR("-> DHCP? ")); 
-		//    if (ether.dhcpExpired() && !ether.dhcpSetup())
-		//      showString(PSTR("DHCP failed\n"));
-		//   showString(PSTR("is fine\n")); 
+		if ( ( millis()-lastupdate ) > REQUEST_RATE )
+		{
+
+			lastupdate = millis();
+			timer = lastupdate;
+			j++;
+			
+			
+			showString(PSTR("\n************************************************************************************************\n"));    
+			showString(PSTR("\nStarting Pachube update loop --- "));
+			showString(PSTR("[memCheck bytes] ")); Serial.print(freeRam());
+			showString(PSTR(" -- [Reboot Time Stamp] "));
+			Serial.println( millis() - TimeStampSinceLastReboot );
+			showString(PSTR("-> Check response from Pachube\n"));
+			
+			// DHCP expiration is a bit brutal, because all other ethernet activity and
+			// incoming packets will be ignored until a new lease has been acquired
+			//    showString(PSTR("-> DHCP? ")); 
+			//    if (ether.dhcpExpired() && !ether.dhcpSetup())
+			//      showString(PSTR("DHCP failed\n"));
+			//   showString(PSTR("is fine\n")); 
 
 
-		// ping server 
-		ether.printIp("-> Pinging: ", ether.hisip);
-		pingtimer = micros();
-		ether.clientIcmpRequest(ether.hisip);
-		if ( ( ether.packetReceive() > 0 ) && ether.packetLoopIcmpCheckReply(ether.hisip) ) 
-		{
-			showString(PSTR("-> ping OK = "));
-			Serial.print((micros() - pingtimer) * 0.001, 3);
-			showString(PSTR(" ms\n"));
-		} 
-		else 
-		{
-			showString(PSTR("-> ping KO = "));
-			Serial.print((micros() - pingtimer) * 0.001, 3);
-			showString(PSTR(" ms\n"));
+			// ping server 
+			ether.printIp("-> Pinging: ", ether.hisip);
+			pingtimer = micros();
+			ether.clientIcmpRequest(ether.hisip);
+			if ( ( ether.packetReceive() > 0 ) && ether.packetLoopIcmpCheckReply(ether.hisip) ) 
+			{
+				showString(PSTR("-> ping OK = "));
+				Serial.print((micros() - pingtimer) * 0.001, 3);
+				showString(PSTR(" ms\n"));
+			} 
+			else 
+			{
+				showString(PSTR("-> ping KO = "));
+				Serial.print((micros() - pingtimer) * 0.001, 3);
+				showString(PSTR(" ms\n"));
+			}
+			
+			// DHCP expiration is a bit brutal, because all other ethernet activity and
+			// incoming packets will be ignored until a new lease has been acquired
+			wdt_reset();
+			if ( ether.dhcpExpired() && !ether.dhcpSetup() )
+			{ 
+				showString(PSTR("DHCP failed\n"));
+				delay (200); // delay to let the serial port buffer some time to send the message before rebooting
+				software_Reset() ;  // Reboot so can a new lease can be obtained
+			}
+
+			// Get Anemometer data 
+			AnemometerLoop();
+			
+			if (FirstLoop <= 2) { return; } // Discard first sets of data to make sure you get clean data
+			
+			byte sd = stash.create();  // Initialise send data buffer
+			
+			stash.print("0,"); // Datastream 0 - Wind speed in m/s
+			stash.println( WindSpeed_mps );
+			stash.print("1,"); // Datastream 1 - Wind Gust in m/s
+			stash.println( WindGust );
+			stash.print("2,"); // Datastream 2 - Wind Direction
+			stash.println( WindDirection );
+			stash.print("3,"); // Datastream 3 - km/h
+			stash.println( WindSpeed_kph );
+			stash.print("4,"); // Datastream 4 - miles/h
+			stash.println( WindSpeed_mph );
+			stash.print("5,"); // Datastream 5 - knots
+			stash.println( WindSpeed_knt );
+			stash.print("10,"); // Datastream 10 - Nanode Health
+			stash.println( j );
+			stash.print("11,");  // Datastream 11 - Nbr of REBOOTs
+			stash.println( EEPROM.read(0) );
+			stash.print("12,");  // Datastream 12 - Nbr of WATCHDOG TIMEOUTs
+			stash.println( EEPROM.read(1)  );
+			
+			stash.save(); // Close streaming send data buffer
+
+			// Select the destination feed according to what the Nanode board is assigned to    
+			switch ( MyNanode )
+			{
+			case 6: // Anemometre/Girouette Etel 6 m 
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("38277"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+				
+			case 9:  // Anemometre/Girouette Etel 9 m 
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("38278"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+
+			case 8:   // Anemometre/Girouette Etel 12 m 
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("38279"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+				
+			case 7:   // Anemometre/Girouette Etel 18 m 
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("38281"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+				
+			case 1: // Aurora
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("37667"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+				
+			case 2: // FemtoGrid
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("37668"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+				
+			case 3: // Skystream
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("35020"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+				
+			case 4: // Grid RMS #1
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("40385"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+				
+			case 5: // Grid RMS #2
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("40386"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+				
+			default: // ArduGrid Free Room on Pachube -- https://pachube.com/feeds/40447
+				Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
+				"Host: $F" "\r\n"
+				"X-PachubeApiKey: $F" "\r\n"
+				"Content-Length: $D" "\r\n"
+				"\r\n"
+				"$H"),
+				PSTR("api.pachube.com"), PSTR("40447"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
+				break;
+			}
+			
+			// send the packet - this also releases all stash buffers once done
+			ether.tcpSend();
+			showString(PSTR("-- sending --\n")); 
+
+			
+			for (int i=0; i < 4; i++) { digitalWrite(6,!digitalRead(6)); delay (50);} // blink LED 6 a bit to show some activity on the board when sending to Pachube
 		}
-    
-    // DHCP expiration is a bit brutal, because all other ethernet activity and
-    // incoming packets will be ignored until a new lease has been acquired
-    wdt_reset();
-    if ( ether.dhcpExpired() && !ether.dhcpSetup() )
-    { 
-      showString(PSTR("DHCP failed\n"));
-      delay (200); // delay to let the serial port buffer some time to send the message before rebooting
-      software_Reset() ;  // Reboot so can a new lease can be obtained
-    }
-   
-    // Get Anemometer data 
-    AnemometerLoop();
-    
-    if (FirstLoop <= 2) { return; } // Discard first sets of data to make sure you get clean data
-    
-    byte sd = stash.create();  // Initialise send data buffer
-    
-    stash.print("0,"); // Datastream 0 - Wind speed in m/s
-    stash.println( WindSpeed_mps );
-    stash.print("1,"); // Datastream 1 - Wind Gust in m/s
-    stash.println( WindGust );
-    stash.print("2,"); // Datastream 2 - Wind Direction
-    stash.println( WindDirection );
-    stash.print("3,"); // Datastream 3 - km/h
-    stash.println( WindSpeed_kph );
-    stash.print("4,"); // Datastream 4 - miles/h
-    stash.println( WindSpeed_mph );
-    stash.print("5,"); // Datastream 5 - knots
-    stash.println( WindSpeed_knt );
-    stash.print("10,"); // Datastream 10 - Nanode Health
-    stash.println( j );
-	stash.print("11,");  // Datastream 11 - Nbr of REBOOTs
-	stash.println( EEPROM.read(0) );
-	stash.print("12,");  // Datastream 12 - Nbr of WATCHDOG TIMEOUTs
-	stash.println( EEPROM.read(1)  );
-    
-    stash.save(); // Close streaming send data buffer
- 
-    // Select the destination feed according to what the Nanode board is assigned to    
-    switch ( MyNanode )
-    {
-      case 6: // Anemometre/Girouette Etel 6 m 
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("38277"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-    
-      case 9:  // Anemometre/Girouette Etel 9 m 
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("38278"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-  
-      case 8:   // Anemometre/Girouette Etel 12 m 
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("38279"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-     
-      case 7:   // Anemometre/Girouette Etel 18 m 
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("38281"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-       
-      case 1: // Aurora
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("37667"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-         break;
-        
-      case 2: // FemtoGrid
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("37668"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-        
-      case 3: // Skystream
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("35020"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-        
-      case 4: // Grid RMS #1
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("40385"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-        
-      case 5: // Grid RMS #2
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                        "Host: $F" "\r\n"
-                        "X-PachubeApiKey: $F" "\r\n"
-                        "Content-Length: $D" "\r\n"
-                        "\r\n"
-                        "$H"),
-                        PSTR("api.pachube.com"), PSTR("40386"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-        
-      default: // ArduGrid Free Room on Pachube -- https://pachube.com/feeds/40447
-        Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
-                  "Host: $F" "\r\n"
-                  "X-PachubeApiKey: $F" "\r\n"
-                  "Content-Length: $D" "\r\n"
-                  "\r\n"
-                  "$H"),
-                  PSTR("api.pachube.com"), PSTR("40447"), PSTR("api.pachube.com"), PSTR(APIKEY), stash.size(), sd);
-        break;
-    }
-    
-    // send the packet - this also releases all stash buffers once done
-    ether.tcpSend();
-    showString(PSTR("-- sending --\n")); 
+	}
 
-            
-    for (int i=0; i < 4; i++) { digitalWrite(6,!digitalRead(6)); delay (50);} // blink LED 6 a bit to show some activity on the board when sending to Pachube
-  }
-  }
-  
-  // reboot now to clean all dirty buffers to avoid Pachube feed hanging.
-  showString(PSTR("-- rebooting --\n")); delay (250); 
-  software_Reset() ;
- 
-// END -- Ethernet/Pachube section 
+	// reboot now to clean all dirty buffers to avoid Pachube feed hanging.
+	showString(PSTR("-- rebooting --\n")); delay (250); 
+	software_Reset() ;
+
+	// END -- Ethernet/Pachube section 
 }
 
 
@@ -550,87 +549,87 @@ void loop()  // START Pachube section
 
 void AnemometerLoop ()    // START Anemometer section
 {
-  
-  // with micros()
-  WindSpeed_mpsx = 1000000*WindTo_mps/PulseTimeInterval; // calculated on last pulse periode (only 1 pulse)
-  WindSpeed_mps = (1000000*WindTo_mps/PulsesCumulatedTime)*PulsesNbr; // averaged every 6 seconds (on Pachube update rate)
-  WindSpeed_kph = (1000000*WindTo_kph/PulsesCumulatedTime)*PulsesNbr;
-  WindSpeed_mph = (1000000*WindTo_mph/PulsesCumulatedTime)*PulsesNbr;
-  WindSpeed_knt = (1000000*WindTo_knt/PulsesCumulatedTime)*PulsesNbr;
-  MaxWind       = 1000000*WindTo_mps/MinPulseTimeInterval; // Determine wind gust (i.e the smallest pulse interval between Pachube updates)
 
-  showString(PSTR("\n"));  
-  showString(PSTR("\n"));  
-  showString(PSTR("Wind speed -- "));
-//  showString(PSTR("\n"));  
-//  showString(PSTR("------------ "));
-//  showString(PSTR("\n"));  
-  Serial.print(WindSpeed_mpsx,DEC);
-  showString(PSTR(" m/s      "));
-  Serial.print(WindSpeed_kph,DEC);
-  showString(PSTR(" km/h      "));
-  Serial.print(WindSpeed_mph,DEC);
-  showString(PSTR(" miles/h      "));
-  showString(PSTR("")); 
-  Serial.print(WindSpeed_knt,DEC);
-  showString(PSTR(" knots"));
-  showString(PSTR("\n"));
-    
-  showString(PSTR("    "));  
-  Serial.print(WindSpeed_mps,DEC);
-  showString(PSTR(" m/s      "));
-  Serial.print(PulsesNbr,DEC);
-  showString(PSTR(" pulses   "));  
-  Serial.print(PulsesCumulatedTime,DEC);
-  showString(PSTR(" time in microseconds between pachube updates   ")); 
-  showString(PSTR("\n"));
-  
-  showString(PSTR("    "));  
-  Serial.print(MaxWind,DEC);
-  showString(PSTR(" max wind speed m/s   ")); 
-  showString(PSTR("\n"));
- 
-  PulsesCumulatedTime = 0;
-  PulsesNbr = 0;
-  MinPulseTimeInterval = 1000000000;
-  LastPulseTimeInterval = 1000000000;
-  WindGust = MaxWind;
-  MaxWind = 0;
-  
-  DirectionVolt = analogRead (1); // Analog input 1 (A1) is Davis Vane #2
-  WindDirection = (DirectionVolt / 1024.0) * 360.0;
-  WindDirection = WindDirection + VaneOffset ;  // add direction offset to calibrade vane position
-  if (WindDirection > 360 ) { WindDirection = WindDirection - 360; }
-  showString(PSTR("    "));  
-  showString(PSTR("Wind Direction -- "));
-  Serial.print(WindDirection);
-  showString(PSTR(" Deg."));
-  showString(PSTR("\n"));
-  
-  if (FirstLoop <= 2)
-  {
-    FirstLoop = FirstLoop + 1;
-    showString(PSTR("> First 2 loops, discard dirty data <\n"));
-  }
+	// with micros()
+	WindSpeed_mpsx = 1000000*WindTo_mps/PulseTimeInterval; // calculated on last pulse periode (only 1 pulse)
+	WindSpeed_mps = (1000000*WindTo_mps/PulsesCumulatedTime)*PulsesNbr; // averaged every 6 seconds (on Pachube update rate)
+	WindSpeed_kph = (1000000*WindTo_kph/PulsesCumulatedTime)*PulsesNbr;
+	WindSpeed_mph = (1000000*WindTo_mph/PulsesCumulatedTime)*PulsesNbr;
+	WindSpeed_knt = (1000000*WindTo_knt/PulsesCumulatedTime)*PulsesNbr;
+	MaxWind       = 1000000*WindTo_mps/MinPulseTimeInterval; // Determine wind gust (i.e the smallest pulse interval between Pachube updates)
+
+	showString(PSTR("\n"));  
+	showString(PSTR("\n"));  
+	showString(PSTR("Wind speed -- "));
+	//  showString(PSTR("\n"));  
+	//  showString(PSTR("------------ "));
+	//  showString(PSTR("\n"));  
+	Serial.print(WindSpeed_mpsx,DEC);
+	showString(PSTR(" m/s      "));
+	Serial.print(WindSpeed_kph,DEC);
+	showString(PSTR(" km/h      "));
+	Serial.print(WindSpeed_mph,DEC);
+	showString(PSTR(" miles/h      "));
+	showString(PSTR("")); 
+	Serial.print(WindSpeed_knt,DEC);
+	showString(PSTR(" knots"));
+	showString(PSTR("\n"));
+	
+	showString(PSTR("    "));  
+	Serial.print(WindSpeed_mps,DEC);
+	showString(PSTR(" m/s      "));
+	Serial.print(PulsesNbr,DEC);
+	showString(PSTR(" pulses   "));  
+	Serial.print(PulsesCumulatedTime,DEC);
+	showString(PSTR(" time in microseconds between pachube updates   ")); 
+	showString(PSTR("\n"));
+
+	showString(PSTR("    "));  
+	Serial.print(MaxWind,DEC);
+	showString(PSTR(" max wind speed m/s   ")); 
+	showString(PSTR("\n"));
+
+	PulsesCumulatedTime = 0;
+	PulsesNbr = 0;
+	MinPulseTimeInterval = 1000000000;
+	LastPulseTimeInterval = 1000000000;
+	WindGust = MaxWind;
+	MaxWind = 0;
+
+	DirectionVolt = analogRead (1); // Analog input 1 (A1) is Davis Vane #2
+	WindDirection = (DirectionVolt / 1024.0) * 360.0;
+	WindDirection = WindDirection + VaneOffset ;  // add direction offset to calibrade vane position
+	if (WindDirection > 360 ) { WindDirection = WindDirection - 360; }
+	showString(PSTR("    "));  
+	showString(PSTR("Wind Direction -- "));
+	Serial.print(WindDirection);
+	showString(PSTR(" Deg."));
+	showString(PSTR("\n"));
+
+	if (FirstLoop <= 2)
+	{
+		FirstLoop = FirstLoop + 1;
+		showString(PSTR("> First 2 loops, discard dirty data <\n"));
+	}
 }
 
 void AnemometerPulse() 
 {
-   noInterrupts();             // disable global interrupts
-   PulseTimeNow = micros();   // Micros() is more precise to compute pulse width that millis();
-   PulseTimeInterval = PulseTimeNow - PulseTimeLast;
-   PulseTimeLast = PulseTimeNow;
-   PulsesCumulatedTime = PulsesCumulatedTime + PulseTimeInterval;
-   PulsesNbr++;
-  
-   if ( PulseTimeInterval < LastPulseTimeInterval )   // faster wind speed == shortest pulse interval
-   { 
-     MinPulseTimeInterval = PulseTimeInterval;
-     LastPulseTimeInterval = MinPulseTimeInterval;
-   }
-  // deglitch algorith needs to added !!!!
-      
-   interrupts();              // Re-enable Interrupts
+	noInterrupts();             // disable global interrupts
+	PulseTimeNow = micros();   // Micros() is more precise to compute pulse width that millis();
+	PulseTimeInterval = PulseTimeNow - PulseTimeLast;
+	PulseTimeLast = PulseTimeNow;
+	PulsesCumulatedTime = PulsesCumulatedTime + PulseTimeInterval;
+	PulsesNbr++;
+
+	if ( PulseTimeInterval < LastPulseTimeInterval )   // faster wind speed == shortest pulse interval
+	{ 
+		MinPulseTimeInterval = PulseTimeInterval;
+		LastPulseTimeInterval = MinPulseTimeInterval;
+	}
+	// deglitch algorith needs to added !!!!
+	
+	interrupts();              // Re-enable Interrupts
 }
 
 // ++++++++++++++++
@@ -731,7 +730,7 @@ void WatchdogClear(void)
 ISR(WDT_vect)
 {
 	WatchdogSetup(); // If not there, cannot print the message before rebooting
-    EEPROM.write(1, EEPROM.read(1)+1 );  // Increment EEPROM for each WatchDog Timeout
+	EEPROM.write(1, EEPROM.read(1)+1 );  // Increment EEPROM for each WatchDog Timeout
 	showString(PSTR("\nREBOOTING....\n\n"));
 	
 	// Time out counter in CPU EEPROM
