@@ -11,13 +11,13 @@
 
 == Nanode kit (€ 25) ==
 
-http://wiki.london.hackspace.org.uk/view/Project:Nanode/Building_a_Nanode
-
-http://www.earthshineelectronics.com/arduino-products/111-nanode-kit.html
-
 http://www.earthshineelectronics.com/Images/nanode.jpg -- €25.00 including shipping
 
-MAC address and 2Kbit permanent storage soldered at back http://www.microchip.com/wwwproducts/Devices.aspx?dDocName=en538621
+http://nanode.eu
+
+http://ichilton.github.com/nanode/
+
+-----
 
 == USB to Serial Adapter (for Arduino/Nanode code download) ==
 
